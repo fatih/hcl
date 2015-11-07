@@ -375,6 +375,7 @@ func (s *Scanner) scanExponent(ch rune) rune {
 
 // scanString scans a quoted string
 func (s *Scanner) scanString() {
+	braces := 0
 	for {
 		// '"' opening already consumed
 		// read character after quote
@@ -387,6 +388,19 @@ func (s *Scanner) scanString() {
 
 		if ch == '"' {
 			break
+		}
+		
+		// If we're going into a ${} then we can ignore quotes for awhile.
+		// This is a weird HCL-ism but most places HCL is use also use this
+		// syntax for interpolations.
+		if braces == 0 && ch == '$' && s.peek() == '{' {
+			braces++
+			s.next()
+		} else if braces > 0 && ch == '{' {
+			braces++
+		}
+		if braces > 0 && ch == '}' {
+			braces--
 		}
 
 		if ch == '\\' {
