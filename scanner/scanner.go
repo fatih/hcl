@@ -386,7 +386,7 @@ func (s *Scanner) scanString() {
 			return
 		}
 
-		if ch == '"' {
+		if ch == '"' && braces == 0 {
 			break
 		}
 		
